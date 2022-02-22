@@ -1,0 +1,181 @@
+﻿@model IEnumerable<VaccinationReservationPlatForm.Models.Work2ViewModel>
+@{
+    ViewData["Title"] = "VWorkingPage";
+}
+<head>    
+    <link href="~/lib/font-awesome/css/all.css" rel="stylesheet" />  
+    <style>
+        .List {
+            padding-top:20px;
+            float: left;
+            height: 450px;
+            width: 50%;
+            padding-left:10%;
+            padding-right: 20px;
+            font-size:16px;
+        }
+
+        .detail {
+            font-size:18px;
+            padding-top: 50px;
+            float: left;
+            height: 450px;
+            width: 20%;
+            border-left: 3px solid #D3D3D3;
+            padding-left: 20px;
+        }
+        h1 {
+            padding-bottom: 20px;
+            text-align: center;
+        }
+        .lb {
+            font-size: 24px;
+            padding-right: 40px;
+            font-weight: bold;
+            color: dodgerblue;
+        }
+        .f4 {
+            margin-left: 5px;
+            margin-right: 5px;
+            width: calc(60%- 10px)
+        }
+        .suchdiv{
+            width:90%;
+            padding-bottom:15px;
+            display:flex;
+            justify-content:center;
+        }
+        .detail span {
+            display: inline-block;
+            width: 5em;
+            text-align: justify;
+            text-align-last: justify;
+        }
+        .detail p{
+            letter-spacing:1px;
+        }
+    </style>
+</head>
+
+<h1>疫苗施打作業</h1>
+<form method="post" action="" data-ajax="true">   
+        <div class="suchdiv">
+            <label class="lb">日期 : @ViewBag.date</label>
+            <label class="lb">疫苗 : @ViewBag.vName</label>
+            <label style="font-size:24px;font-weight:bold;color:dodgerblue">疫苗批號 : </label>
+            <div class="f4">
+                @Html.DropDownList("vSerialN", (IEnumerable<SelectListItem>)ViewBag.vn, new { @class = "form-control" })
+            </div>
+        </div>
+        <div class="suchdiv">
+            <div class="List">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>序</th>
+                            <th>預約人</th>
+                            <th>號碼</th>
+                            <th>狀態</th>
+                            <th>疫苗批號</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @{
+                            int count = 0;
+                            foreach (var w2 in Model)
+                            {
+                                count++;
+                                <tr>
+                                    <td>@count</td>
+                                    <td>@Html.DisplayFor(modelItem => w2.PersonName)</td>
+                                    <td>@Html.DisplayFor(modelItem => w2.Vbnumber)</td>
+                                    <td>@Html.DisplayFor(modelItem => w2.VbcheckRemark)</td>
+                                    <td>@Html.DisplayFor(modelItem => w2.VaccineSerialNumber)</td>
+                                    <td>
+                                        @Html.ActionLink("詳細", "VWorkingPage", "VaccinationHospital", new { PId = w2.PersonId }, null)
+                                        @*<button id="showlist" type="button" data-pid="@w2.PersonId"><i class="far fa-edit"></i></button>*@
+                                    </td>
+                                </tr>
+                            }
+                        }
+                    </tbody>
+                </table>
+            </div>      
+        
+            <div class="detail">
+                @{
+                    foreach (var w2 in Model.Where(w => w.PersonId == ViewBag.thisone))
+                    {
+                        <p><span>預約人</span> : @Html.DisplayFor(modelItem => w2.PersonName)</p>
+                        <p><span>身分證</span> : @Html.DisplayFor(modelItem => w2.PersonIdentityId)</p>
+                        <p><span>預約時段</span> : @Html.DisplayFor(modelItem => w2.VbbookingTime)</p>
+                        <p><span>狀態</span> : @Html.DisplayFor(modelItem => w2.VbcheckRemark)</p>
+                        <p><span>疫苗批號</span> : @Html.DisplayFor(modelItem => w2.VaccineSerialNumber)</p>
+                        <p>下次預約時間 :</p>
+                        <p>@Html.DisplayFor(modelItem => w2.VbappointmentDate)</p>
+                        <input type="hidden" name="stateEditID" value="@Html.DisplayFor(stateEdit => w2.PersonId)" />
+                        @*<input type="submit" value="回復" formaction="Work5" class="btn btn-outline-warning" />*@
+                        <input type="submit" id="absence" value="未到" formaction="Absence" class="btn btn-danger" style="width: 80px; height: 60px; margin:30px 25px; font-size:24px;"/>
+                        <button type="submit" id="success" formaction="VSucceed" class="btn btn-success" style="width: 80px; height: 60px; margin: 40px 15px; font-size: 24px;">施打</button>
+                    }
+                }
+            </div>
+        </div>
+    @*</div>*@
+<div style="text-align:center;width:100%;">  
+    <button type="submit" id="Next" formaction="FinalPage" class="btn btn-outline-primary">下一頁</button>
+</div>
+</form>
+
+<script type="text/javascript" src="~/lib/jquery/dist/jquery.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@9"></script>
+<script src="~/js/toastr.min.js"></script>
+
+<script>    
+    @*
+        toastr.success('施打成功');
+    *@       
+    var Absencechangefail = "@TempData["Absencechangefail"]";
+    @*var Succeedchangeto = "@TempData["Succeedchangeto"]";*@
+    if (/*Succeedchangeto == "Succeedchangeto" ||*/ Absencechangefail =="Absencechangefail") {
+        alert('狀態已更改過，無法再次變更!')
+    }
+
+    var Succeedalready = "@TempData["Succeedalready"]";
+    if (Succeedalready == "Succeedalready") {
+        alert('無法重複施打，請再次確認!')
+    }
+
+    var Absencealreadt="@TempData["Absencealreadt"]";
+    if (Absencealreadt == "Absencealreadt") {
+        alert('狀態已是-缺席')
+    }
+
+    var MarkSuccess = "@TempData["MarkSuccess"]";
+    if (MarkSuccess == "MarkSuccess") {
+        toastr.success('施打成功');
+    }
+
+    var sss = "@TempData["sss"]";
+    if (sss == "sss") {
+        alert('預約人狀態未全數變更')
+    }
+
+    $('#absence').click(function () {
+        var yes = confirm('確定將預約人狀態變更為缺席?')
+        if (yes) {
+            
+        } else {
+            return false
+        }       
+    }) 
+
+
+    //$('table>tbody button').click(function () {
+    //    var pid = $(this).data('pid');
+    //    $.get('/VaccinationHospital/VWorkingPage', { "PId": pid }, function (data) {
+    //        alert(data);
+    //    })
+    //    })
+</script>

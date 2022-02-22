@@ -1,0 +1,14 @@
+﻿@{
+    string controller = Context.Request.RouteValues["controller"].ToString();
+    //string controllerHtml = Html.ViewContext.RouteData.Values["controller"].ToString();
+    bool b = controller.ToLower().Contains("hospital");
+
+    if (b)
+    {
+        Layout = "_LayoutHospital";
+    }
+    else
+    {
+        Layout = "_Layout";
+    }
+}

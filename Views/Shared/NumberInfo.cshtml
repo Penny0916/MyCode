@@ -1,0 +1,65 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+<head>
+    <style>
+        .city, .town {
+            width: 100%;
+        }
+
+        .f3 {
+            float: left;
+            margin-right: 5px;
+            width: calc(15% - 10px)
+        }
+
+        .f4 {
+            float: left;
+            margin-left: 10px;
+            margin-right: 5px;
+            width: calc(20% - 10px)
+        }
+    </style>
+</head>
+<div class="section-title">
+    <h2>號碼查詢</h2>
+</div>
+<div style="margin-left:25%">
+    <div class="row mt-5 justify-content-center">
+
+        <div id="twzipcode">
+            <div class="f3" data-role="county"></div>
+            <div class="f4" data-role="district"></div>
+            <span id="spann"></span>
+        </div>
+
+    </div>
+</div>
+
+
+@*<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.0.0/jquery.min.js"></script>*@
+<script type="text/javascript" src="~/lib/jquery/dist/jquery.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery-twzipcode@1.7.14/jquery.twzipcode.min.js"></script>
+
+<script>
+    $("#twzipcode").twzipcode({
+        "zipcodeIntoDistrict": true,
+        "css": ["city form-control", "town form-control"],
+        "countyName": "city", // 指定城市 select name
+        "districtName": "town" // 指定地區 select name
+    });
+
+    $(".town").change(function () {
+
+        var zipcode = $("input[name='zipcode']").val();
+        $.ajax({
+            url: "@Url.Action("HospitalNameList", "NumberInfo")",
+            type: "GET",
+            data: "zipcode=" + zipcode,
+            success: function (data) {
+                $("#spann").html(data)
+            }
+        })
+    });
+
+</script>
